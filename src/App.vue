@@ -1,12 +1,15 @@
 <script setup>
+
+import Footer from "@/components/Footer.vue";
+import PartnerLogo from "@/components/PartnerLogo.vue";
 import Header from "@/components/Header.vue";
-import HeroSection from "@/components/HeroSection.vue";
 </script>
 
 <template>
   <Header />
-
-  <HeroSection />
+  <router-view />
+  <PartnerLogo />
+  <Footer />
 </template>
 
 <style scoped>
