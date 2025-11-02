@@ -1,8 +1,8 @@
 <script setup lang="ts">
 
-import HeroSection from "@/components/HeroSection.vue";
-import BannerSection from "@/components/BannerSection.vue";
-import Instagram from "@/components/Instagram.vue";
+import HeroSection from "@/components/home/HeroSection.vue";
+import BannerSection from "@/components/home/BannerSection.vue";
+import Instagram from "@/components/home/Instagram.vue";
 </script>
 
 <template>
