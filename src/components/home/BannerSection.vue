@@ -1,7 +1,31 @@
 <script setup lang="ts">
-
-import {Carousel, Slide} from "vue3-carousel";
+import { ref, onMounted } from "vue";
+import { Carousel, Slide } from "vue3-carousel";
 import "vue3-carousel/dist/carousel.css";
+
+const products = ref([]);
+
+async function fetchProducts() {
+  try {
+    const response = await fetch("http://localhost:8000/api/products");
+    if (!response.ok) throw new Error("Network response was not ok");
+    const data = await response.json();
+    products.value = data.data.data;
+    console.log(products);
+    console.log(data.data.data);
+  } catch (error) {
+    console.error("Fetch products error:", error);
+  }
+}
+
+function formatRupiah(price) {
+  if (typeof price !== 'number') return price;
+  return 'Rp. ' + price.toLocaleString('id-ID') + ',-';
+}
+
+onMounted(() => {
+  fetchProducts();
+});
 </script>
 
 <template>
@@ -10,10 +34,10 @@ import "vue3-carousel/dist/carousel.css";
       <div class="row">
         <div class="col-lg-12 mt-5">
           <Carousel class="product-slider" :autoplay="5000" :wrap-around="true" :transition="800" items-to-show="3">
-            <Slide>
+            <Slide v-for="(product, index) in products" :key="product.id || index">
               <div class="product-item">
                 <div class="pi-pic">
-                  <img src="/img/mickey1.jpg" alt="" />
+                  <img :src="product.galleries && product.galleries.length > 0 ? product.galleries[0].photo : '/img/mickey1.jpg'" alt="" />
                   <ul>
                     <li class="w-icon active">
                       <a href="#"><i class="icon_bag_alt"></i></a>
@@ -22,60 +46,13 @@ import "vue3-carousel/dist/carousel.css";
                   </ul>
                 </div>
                 <div class="pi-text">
-                  <div class="catagory-name">Coat</div>
+                  <div class="catagory-name"> {{ product.type }} </div>
                   <router-link to="/product">
-                    <h5>Mickey Baggy</h5>
+                    <h5>{{ product.name }}</h5>
                   </router-link>
                   <div class="product-price">
-                    $14.00
+                    {{ formatRupiah(product.price) }}
                     <span>$35.00</span>
-                  </div>
-                </div>
-              </div>
-            </Slide>
-            <Slide>
-              <div class="product-item">
-                <div class="pi-pic">
-                  <img src="/img/products/women-3.jpg" alt="" />
-                  <ul>
-                    <li class="w-icon active">
-                      <a href="#"><i class="icon_bag_alt"></i></a>
-                    </li>
-                    <li class="quick-view"><a href="#">+ Quick View</a></li>
-                  </ul>
-                </div>
-                <div class="pi-text">
-                  <div class="catagory-name">Towel</div>
-                  <router-link to="/product">
-                    <h5>Pure Pineapple</h5>
-                  </router-link>
-                  <div class="product-price">
-                    $34.00
-                  </div>
-                </div>
-              </div>
-            </Slide>
-            <Slide>
-              <div class="product-item">
-                <div class="pi-pic">
-                  <img src="/img/products/women-4.jpg" alt="" />
-                  <ul>
-                    <li class="w-icon active">
-                      <a href="#"><i class="icon_bag_alt"></i></a>
-                    </li>
-                    <li class="quick-view"><a href="#">+ Quick View</a></li>
-                    <li class="w-icon">
-                      <a href="#"><i class="fa fa-random"></i></a>
-                    </li>
-                  </ul>
-                </div>
-                <div class="pi-text">
-                  <div class="catagory-name">Towel</div>
-                  <router-link to="/product">
-                    <h5>Converse Shoes</h5>
-                  </router-link>
-                  <div class="product-price">
-                    $34.00
                   </div>
                 </div>
               </div>
