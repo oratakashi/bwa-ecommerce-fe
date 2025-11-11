@@ -2,11 +2,13 @@
 import ProductImages from "@/components/products/ProductImages.vue";
 import {ref, onMounted} from "vue";
 import {useRoute} from "vue-router";
+import { useCart } from '@/composables/useCart';
 
 let image = ref("/img/mickey1.jpg");
 const route = useRoute();
 const productId = route.params.id;
 const product = ref<any>(null);
+const { cartItems, getCart, saveToCart } = useCart();
 
 function handleSelectImage(img: string) {
   image.value = img;
@@ -31,7 +33,10 @@ function formatRupiah(price) {
   return 'Rp. ' + price.toLocaleString('id-ID') + ',-';
 }
 
-onMounted(fetchProduct);
+onMounted(async () => {
+  await fetchProduct();
+  getCart();
+});
 
 </script>
 
@@ -73,7 +78,7 @@ onMounted(fetchProduct);
                   <h4>{{ formatRupiah(product?.price) }}</h4>
                 </div>
                 <div class="quantity">
-                  <a href="shopping-cart.html" class="primary-btn pd-cart">Add To Cart</a>
+                  <button class="primary-btn pd-cart" @click="saveToCart(product)">Add To Cart</button>
                 </div>
               </div>
             </div>

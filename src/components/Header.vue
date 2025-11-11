@@ -1,9 +1,23 @@
 <script setup lang="ts">
-// import {defineComponent} from 'vue'
-//
-// export default defineComponent({
-//   name: "Header"
-// })
+import {onMounted, computed} from "vue";
+import { useCart } from '@/composables/useCart';
+
+const { cartItems, getCart } = useCart();
+
+function formatRupiah(price) {
+  if (typeof price !== 'number') return price;
+  return 'Rp. ' + price.toLocaleString('id-ID') + ',-';
+}
+
+function calculateTotal() {
+  return cartItems.value.reduce((total, item) => total + (item.item?.price || 0) * (item.qty || 1), 0);
+}
+
+const totalQty = computed(() => cartItems.value.reduce((sum, item) => sum + (item.qty || 0), 0));
+
+onMounted(() => {
+  getCart();
+});
 </script>
 
 <template>
@@ -37,46 +51,34 @@
                 Keranjang Belanja &nbsp;
                 <a href="#">
                   <i class="icon_bag_alt"></i>
-                  <span>3</span>
+                  <span>{{ totalQty }}</span>
                 </a>
                 <div class="cart-hover">
                   <div class="select-items">
-                    <table>
+                    <table v-if="cartItems.length > 0">
                       <tbody>
-                      <tr>
+                      <tr v-for="item in cartItems.slice(0, 5)" :key="item.id">
                         <td class="si-pic">
-                          <img src="/img/select-product-1.jpg" alt="" />
+                          <img :src="item.item?.galleries?.[0]?.photo || '/img/default.jpg'" alt="" />
                         </td>
                         <td class="si-text">
                           <div class="product-selected">
-                            <p>$60.00 x 1</p>
-                            <h6>Kabino Bedside Table</h6>
+                            <p>{{ formatRupiah(item.item?.price) }}</p>
+                            <h6>{{ item.item?.name }}</h6>
+                            <p>{{ item.qty }} Items</p>
                           </div>
-                        </td>
-                        <td class="si-close">
-                          <i class="ti-close"></i>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="si-pic">
-                          <img src="/img/select-product-2.jpg" alt="" />
-                        </td>
-                        <td class="si-text">
-                          <div class="product-selected">
-                            <p>$60.00 x 1</p>
-                            <h6>Kabino Bedside Table</h6>
-                          </div>
-                        </td>
-                        <td class="si-close">
-                          <i class="ti-close"></i>
                         </td>
                       </tr>
                       </tbody>
                     </table>
+                    <div v-else style="text-align:center; padding: 32px 0; color: #888; font-size: 16px;">
+                      <i class="fa fa-shopping-cart" style="font-size: 28px; margin-bottom: 8px;"></i><br>
+                      Keranjang belanja kamu kosong
+                    </div>
                   </div>
                   <div class="select-total">
                     <span>total:</span>
-                    <h5>$120.00</h5>
+                    <h5>{{ formatRupiah(calculateTotal()) }}</h5>
                   </div>
                   <div class="select-button">
                     <a href="#" class="primary-btn view-card">VIEW CARD</a>
@@ -93,5 +95,8 @@
 </template>
 
 <style scoped>
-
+.si-pic {
+  width: 60px;
+  height: 60px;
+}
 </style>
