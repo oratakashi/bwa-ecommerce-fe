@@ -1,20 +1,38 @@
 <script setup>
 import {Carousel, Slide} from "vue3-carousel";
 import "vue3-carousel/dist/carousel.css";
-import {ref} from "vue";
+import {ref, watch} from "vue";
 
 const emit = defineEmits([
   'onChangeImage'
 ]);
 
-const images = [
-  "/img/mickey1.jpg",
-  "/img/mickey2.jpg",
-  "/img/mickey3.jpg",
-  "/img/mickey4.jpg"
-];
+const props = defineProps(
+  {
+    images: {
+      type: Array,
+      required: true
+    }
+  }
+)
 
-let selectedImage = ref('/img/mickey1.jpg');
+// const images = [
+//   "/img/mickey1.jpg",
+//   "/img/mickey2.jpg",
+//   "/img/mickey3.jpg",
+//   "/img/mickey4.jpg"
+// ];
+
+let selectedImage = ref('');
+
+watch(() => props.images, (newImages) => {
+  if (Array.isArray(newImages) && newImages.length > 0) {
+    const defaultImg = newImages.find(img => img.is_default === 1);
+    selectedImage.value = defaultImg ? defaultImg.photo : newImages[0].photo;
+  } else {
+    selectedImage.value = '';
+  }
+}, { immediate: true });
 
 function changeImage(urlImage) {
   selectedImage.value = urlImage;
@@ -27,10 +45,10 @@ function changeImage(urlImage) {
   <div class="product-thumbs">
     <Carousel class="product-thumbs-track ps-slider" :wrap-around="true" :transition="800"
               items-to-show="3">
-      <Slide v-for="img in images" :key="img">
-        <div class="pt" :style="{ backgroundImage: `url('${img}')` }" @click="changeImage(img)"
-             v-bind:class="img === selectedImage ? 'active' : '' ">
-          <img :src="img" alt=""/>
+      <Slide v-for="img in props.images" :key="img.id">
+        <div class="pt" :style="{ backgroundImage: `url('${img.photo}')` }" @click="changeImage(img.photo)"
+             v-bind:class="img.photo === selectedImage ? 'active' : '' ">
+          <img :src="img.photo" alt=""/>
         </div>
       </Slide>
 

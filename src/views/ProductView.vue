@@ -1,12 +1,37 @@
 <script setup lang="ts">
 import ProductImages from "@/components/products/ProductImages.vue";
-import {ref} from "vue";
+import {ref, onMounted} from "vue";
+import {useRoute} from "vue-router";
 
 let image = ref("/img/mickey1.jpg");
+const route = useRoute();
+const productId = route.params.id;
+const product = ref<any>(null);
 
 function handleSelectImage(img: string) {
   image.value = img;
 }
+
+async function fetchProduct() {
+  try {
+    const response = await fetch(`http://localhost:8000/api/products?id=${productId}`);
+    if (!response.ok) throw new Error("Network response was not ok");
+    const data = await response.json();
+    product.value = data.data;
+    if (product.value.galleries && product.value.galleries.length > 0) {
+      image.value = product.value.galleries[0].photo;
+    }
+  } catch (error) {
+    console.error("Fetch product error:", error);
+  }
+}
+
+function formatRupiah(price) {
+  if (typeof price !== 'number') return price;
+  return 'Rp. ' + price.toLocaleString('id-ID') + ',-';
+}
+
+onMounted(fetchProduct);
 
 </script>
 
@@ -35,25 +60,17 @@ function handleSelectImage(img: string) {
               <div class="product-pic-zoom">
                 <img class="product-big-img" :src="image" alt="" />
               </div>
-              <ProductImages @onChangeImage="handleSelectImage" />
+              <ProductImages @onChangeImage="handleSelectImage"  :images="product?.galleries"/>
             </div>
             <div class="col-lg-6">
               <div class="product-details">
                 <div class="pd-title">
-                  <span>oranges</span>
-                  <h3>Pure Pineapple</h3>
+                  <span>{{ product?.type }}</span>
+                  <h3>{{ product?.name }}</h3>
                 </div>
                 <div class="pd-desc">
-                  <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis, error officia. Rem aperiam laborum voluptatum vel, pariatur modi hic provident eum iure natus quos non a sequi, id accusantium! Autem.
-                  </p>
-                  <p>
-                    Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quam possimus quisquam animi, commodi, nihil voluptate nostrum neque architecto illo officiis doloremque et corrupti cupiditate voluptatibus error illum. Commodi expedita animi nulla aspernatur.
-                    Id asperiores blanditiis, omnis repudiandae iste inventore cum, quam sint molestiae accusamus voluptates ex tempora illum sit perspiciatis. Nostrum dolor tenetur amet, illo natus magni veniam quia sit nihil dolores.
-                    Commodi ratione distinctio harum voluptatum velit facilis voluptas animi non laudantium, id dolorem atque perferendis enim ducimus? A exercitationem recusandae aliquam quod. Itaque inventore obcaecati, unde quam
-                    impedit praesentium veritatis quis beatae ea atque perferendis voluptates velit architecto?
-                  </p>
-                  <h4>$495.00</h4>
+                  <div v-html="product?.description"></div>
+                  <h4>{{ formatRupiah(product?.price) }}</h4>
                 </div>
                 <div class="quantity">
                   <a href="shopping-cart.html" class="primary-btn pd-cart">Add To Cart</a>

@@ -32,7 +32,7 @@ onMounted(() => {
   <section class="women-banner spad">
     <div class="container-fluid">
       <div class="row">
-        <div class="col-lg-12 mt-5">
+        <div class="col-lg-12 mt-5" v-if="products.length > 0">
           <Carousel class="product-slider" :autoplay="5000" :wrap-around="true" :transition="800" items-to-show="3">
             <Slide v-for="(product, index) in products" :key="product.id || index">
               <div class="product-item">
@@ -40,14 +40,14 @@ onMounted(() => {
                   <img :src="product.galleries && product.galleries.length > 0 ? product.galleries[0].photo : '/img/mickey1.jpg'" alt="" />
                   <ul>
                     <li class="w-icon active">
-                      <a href="#"><i class="icon_bag_alt"></i></a>
+                      <router-link :to="`/product/${product.id}`"><i class="icon_bag_alt"></i></router-link>
                     </li>
-                    <li class="quick-view"><a href="product.html">+ Quick View</a></li>
+                    <li class="quick-view"><router-link :to="`/product/${product.id}`">+ Quick View</router-link></li>
                   </ul>
                 </div>
                 <div class="pi-text">
                   <div class="catagory-name"> {{ product.type }} </div>
-                  <router-link to="/product">
+                  <router-link :to="`/product/${product.id}`">
                     <h5>{{ product.name }}</h5>
                   </router-link>
                   <div class="product-price">
@@ -58,6 +58,10 @@ onMounted(() => {
               </div>
             </Slide>
           </Carousel>
+        </div>
+
+        <div class="col-lg-12 mt-5" v-else>
+          Product currently unavailable.
         </div>
       </div>
     </div>
